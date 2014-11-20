@@ -24,22 +24,22 @@ nMainTanks = 1;
 % System Dynamics
 
 A  = zeros(3,3);                                                    % La dinamica es la de un integrador               
-B1 = -0.5;                                                          % Flow of Pump 1 
-B2 = -0.6;                                                          % Flow of Pump 2 
-B  = [B1 B2; -B1 0; 0 -B2]*(1/60);                                  % Control Actions Matrix
-Bw = 2*[ 1/6; -(1/12)*1; -(1/12)*1]*(1/60);                         % Disturbance matrix [Qe Qs1 Qs2]
-Disturbance = [Bw(1)*ones(1,N); Bw(2)*ones(1,N); Bw(3)*ones(1,N)];
-W = Disturbance.*[Delta_C; Delta_C; Delta_C];                       % Integral
+B1 = -0.5;                                                          % Flow of Pump 1 [Kl/min]
+B2 = -0.6;                                                          % Flow of Pump 2 [Kl/min]
+B  = [B1 B2; -B1 0; 0 -B2];                                  % Control Actions Matrix [Kl/min]
+Bw = [ 1/6; -(1/12)*1; -(1/12)*1];                         % Disturbance matrix [Qe Qs1 Qs2] [Kl/min]
+Disturbance = [Bw(1)*ones(1,N); Bw(2)*ones(1,N); Bw(3)*ones(1,N)];  %DxN [kl/min]
+W = Disturbance.*[Delta_C; Delta_C; Delta_C];                       % Integral  [Kl]
 
 
 % Initial Conditions and limits
 
-x0=[2; 1; 1];                 	      % Initial State. V1 V2 V3
-xmax = [4; 2; 2];                     % Maximum Volume
-xmin = [0.2; 0.2; 0.2];               % Minimum Volume
-P1   = 5;                             % Power of Pump 1 
-P2   = 6;                             % Power of Pump 2 
-Pmss =[P1 P2];
+x0=[200; 100; 100];                 	      % Initial State. V1 V2 V3 [Kl]
+xmax = [400; 250; 250];                     % Maximum Volume [Kl]
+xmin = [20; 20; 20];               % Minimum Volume [Kl]
+P1   = 5;                             % Power of Pump 1 [Kw]
+P2   = 6;                             % Power of Pump 2 [Kw]
+Pmss =[P1 P2];                        %1xM [Kw]
 
 % Solver Options
 ops = sdpsettings('solver','glpk');

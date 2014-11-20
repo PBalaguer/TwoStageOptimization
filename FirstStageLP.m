@@ -5,92 +5,88 @@
 %
 %
 % function [U,Energy,Cost]=First_Stage_LP(C, x0, A, B, W, Pmss, xmax, xmin)
-%
+
+%Dimensions:
+%Money: M; Power: P; Time: T; Volume: V
+
 % Inputs:
-%   C:          Electricity price per period. Vector 1xN. [€/kWh]
-%   x0:         Initial state value. Vector nx1.[Kl]
-%   A:          Dynamic matrix. Matrix nxn.
-%   B:          Control Matrix. Matrix nxM.
-%   W:          Integral of disturbance per time interval. Matrix DxN.
+%   C:          Electricity price per period. Vector 1xN.  [M/P·T]
+%   Delta_C:    Time for each period. Vector 1xN        [T]
+%   x0:         Initial state value. Vector nx1.        [V]
+%   A:          Dynamic matrix. Matrix nxn. [Adimensional]
+%   B:          Control Matrix. Matrix nxM.             [V/T]
+%   W:          Integral of disturbance per time interval. Matrix DxN. [V]
 %   Pmss:       Steady state power consmption of each actuator. Vector 1xM
-%   xmax:       Maximum state constraint. Matrix nx1. [Kl]
-%   xmin:       Minimum state constraint. Matrix nx1. [Kl]
-
+%   [P]
+%   xmax:       Maximum state constraint. Matrix nx1.   [V]
+%   xmin:       Minimum state constraint. Matrix nx1.   [V]
 % Outputs:
-%   U:          Integral control action. Matrix MxN. [min]
-%   Energy:     Amount of energy consumed. Real.      [kW]
-%   Cost:       Energy cost. Real.                    [€]
+%   U:          Integral control action. Matrix MxN.    [T]
+%   Energy:     Amount of energy consumed. Real.        [P]
+%   Cost:       Energy cost. Real.                      [M]
 
 
 
+function [ U, Energy, EnergyCost ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
 
+N=length(C);
+[D M]=size(B);
 
-
-C=[11.78 14.11 82.05 14.11 82.05 11.87];
-x0=[2 1 1]';
-A=zeros(3);
-F02=1/12;
-F03=F02;
-F1=1/3;
-Fe=1/6;
-F=[Fe -F02 -F03];
-P1=5;
-P2=6;
-Pmss=[P1 P2];
-B=[-F1 -F02; F1 0;0 F02];
-var_t=[6 1 3 8 4 2];
-var_t_min=60*var_t;
-W=kron(F',var_t_min);
-
-function [ U, Energy, EnergyCost ] = FirstStageLP( C, x0, A, B, W, Pmss, xmax, xmin)
-
-
-%Optimization call using cvx solver
-cvx_begin
-
-variable x(30)
-
-
-% Alp matrix in Alp*x < blp
-Abarra = [ A B ];
-At     = kron( tril( ones( N, N), 0 ), Abarra );    % lower diagonal block matrix with A matrix in each one of its entries
-Alp    = [ -At; At ];       
-
+                        
+A_barra=kron(tril( ones( N, N), 0 ), A );           
+B_barra=kron(tril( ones( N, N), 0 ), B );               %[V/T]
+ 
+Ct=kron(C,Pmss);                                        %[M/T]
 
 Iden = ones( N, 1 );
 
 % W matrix 
 Wbar = [];
 for i = 1:N
-    Wbar = [ Wbar; sum( W( :, 1:i ), 2 ) ];             
+    Wbar = [ Wbar; sum( W( :, 1:i ), 2 ) ];          %Wbar D*Nx1 [V]       
 end
 
 % blp matrix in Alp * x < blp
-blp = [ kron( -Iden, (xmin-x0) ); kron( Iden,(xmax-x0)) ] + [ Wbar; -Wbar ];     % blp Matrix, Alp x <= blp
+blp_min = [ kron( -Iden, (xmin-x0) )+ Wbar];         %blp_min D*Nx1 [V]
+blp_max = [kron( Iden,(xmax-x0))- Wbar ];            %blp_max D*Nx1 [V]
 
-pos_U1i=zeros(1,length(C));
-pU1i=4;
-for i=1:6
-pos_U1i(i)=pU1i;
-pU1i=pU1i+5;
-end
+% blp Matrix, Alp x <= blp
 
-pos_U2i=zeros(1,length(C));
-pU1i=5;
-for i=1:6
-pos_U2i(i)=pU2i;
-pU2i=pU1i+5;
-end
+cvx_begin
 
-
-minimize [x(pos_U1i)*Pmss(1,1) x(pos_U2i)*Pmss(1,2)]*transpose[C C]*(1/60) %dimension balance min*(€/kWh)*(kW)*(1h/60min)
+variables X(D*N,1) U(M*N,1)                          %X [V] U[T]
+minimize Ct*U 
 subject to
-   Alp * x <= blp 
-   x >= 0
+   -(A_barra*X+B_barra*U) <= blp_min                 %[V]
+    A_barra*X+B_barra*U <= blp_max                   %[V]
+    Xf=A_barra*X+B_barra*U+Wbar+kron(x0,ones(N,1))   %[V] Xf describes the state vector for each period.
+   
+    zeros(M*N,1)<=U<=transpose(kron(Delta_C,ones(1,M)))
+  
 cvx_end
 
 %Output management
 
-U = double(U);
-Energy       = Pmss * ( sum( U' ) )';
-EnergyCost   = C * ( Pmss * U )';
+% Transformation of vector X(D*N,1) in matrix form X_m(N,D)
+X_m=[];
+for i= 1:length(C);
+    X_m=[X_m;tranpose(X((i-1)*D+1:i*D))];
+end
+
+% Transformation of vector Xf(D*N,1) in matrix form Xf_m(N,D)
+Xf_m=[];
+for i= 1:length(C);
+    Xf_m=[Xf_m;tranpose(Xf((i-1)*D+1:i*D))];
+end
+
+% Transformation of vector U(M*N,1) in matrix form U_m(N,M)
+U_m=[];
+for i= 1:length(C);
+    U_m=[U_m;tranpose(U((i-1)*M+1:i*M))];
+end
+
+Energy       = kron(eye(N),Pmss)*U*(1/60)    %[P·T]
+EnergyCost   = Ct*U                          %[M]
+
+
+
