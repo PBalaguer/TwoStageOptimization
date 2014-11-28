@@ -27,7 +27,7 @@
 
 
 
-function [ U, Energy, EnergyCost ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
+function [ U, Energy, EnergyCost, X_m, U_m, Xf_m ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
 
 N=length(C);
 [D M]=size(B);
@@ -59,30 +59,31 @@ minimize Ct*U
 subject to
    -(A_barra*X+B_barra*U) <= blp_min                 %[V]
     A_barra*X+B_barra*U <= blp_max                   %[V]
-    Xf=A_barra*X+B_barra*U+Wbar+kron(x0,ones(N,1))   %[V] Xf describes the state vector for each period.
-   
     zeros(M*N,1)<=U<=transpose(kron(Delta_C,ones(1,M)))
   
 cvx_end
+
+Xf=A_barra*X+B_barra*U+Wbar+kron(x0,ones(N,1))   %[V] Xf describes the state vector for each period.
+   
 
 %Output management
 
 % Transformation of vector X(D*N,1) in matrix form X_m(N,D)
 X_m=[];
 for i= 1:length(C);
-    X_m=[X_m;tranpose(X((i-1)*D+1:i*D))];
+    X_m=[X_m;transpose(X((i-1)*D+1:i*D))];
 end
 
 % Transformation of vector Xf(D*N,1) in matrix form Xf_m(N,D)
 Xf_m=[];
 for i= 1:length(C);
-    Xf_m=[Xf_m;tranpose(Xf((i-1)*D+1:i*D))];
+    Xf_m=[Xf_m;transpose(Xf((i-1)*D+1:i*D))];
 end
 
 % Transformation of vector U(M*N,1) in matrix form U_m(N,M)
 U_m=[];
 for i= 1:length(C);
-    U_m=[U_m;tranpose(U((i-1)*M+1:i*M))];
+    U_m=[U_m;transpose(U((i-1)*M+1:i*M))];
 end
 
 Energy       = kron(eye(N),Pmss)*U*(1/60)    %[P·T]

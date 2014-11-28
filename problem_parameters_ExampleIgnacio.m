@@ -1,7 +1,7 @@
 
 % PROBLEM PARAMETERS
 
-
+clear all
 % Main Dimensions:
 % Money: M  ,c€*
 % Power: P  ,KW*
@@ -21,30 +21,35 @@ D=nAuxiliarTanks+nMainTanks; %Number of total tanks or deposits
 
 % System Dynamics
 
-A  = zeros(D,D);                                                    % La dinamica es la de un integrador               
-B1 = 0.5;                                                           % Flow of Pump 1 [Kl/min] [V/T]
-B2 = 0.6;                                                           % Flow of Pump 2 [Kl/min] [V/T]
-B3 = 0.3;
-B  = [-B1 -B2 0; B1 0 0; 0 B2 B3;0 0 -B3];                          % Control Actions Matrix [Kl/min] [V/T]
-Bw = [ 1/4; -1/12; -1/10; 1/15];                                    % Disturbance matrix [Qe Qs1 Qs2] [Kl/min] [V/T]
+A  = zeros(D,D);                                                    % La dinamica es la de un integrador 
+
+% Flow of pump i [V/T]
+B1 = 0.5;                                                           
+B2 = 0.6;                                                         
+B3 = 0.4;
+
+B  = [-B1 -B2 0 ; B1 0 0 ; 0 B2 -B3;0 0 B3];                          % Control Actions Matrix [Kl/min] [V/T]
+Bw = [1/6; -1/8; -1/8; -1/6];                              % Disturbance matrix [Qe Qs1 Qs2] [Kl/min] [V/T]
 Disturbance=[];
 for i=1:length(Bw)
 Disturbance = [Disturbance;Bw(i)*ones(1,N)];                        %DxN [kl/min] [V/T]
 end
-W = Disturbance.*(kron(ones(D,1),Delta_C));                         % Integral  [Kl][V]
+W = Disturbance.*(kron(ones(D,1),Delta_C));                         % Integral  [Kl][V] Matrix DxN
 
 
 % Initial Conditions and limits
 
-x0=[100; 50; 50; 50];                   % Initial State. V1 V2 V3 [Kl] [V]
-xmax = [200; 100; 100; 100];              % Maximum Volume [Kl][V]
-xmin = [20; 20; 20; 15];                  % Minimum Volume [Kl][V]  
-P1   = 5;                                 % Power of Pump 1 [Kw][P]
-P2   = 6;                                 % Power of Pump 2 [Kw][P]
-p3   = 3;                                 % Power of Pump 3 [Kw][P]
+x0=[200; 100; 100; 100];                   % Initial State. V1 V2 V3 [Kl] [V]
+xmax = [400; 250; 250; 200];              % Maximum Volume [Kl][V]
+xmin =  [20; 20; 20; 20];                  % Minimum Volume [Kl][V]  
+% Power of Pump i [P]
+
+P1   = 5;                                 
+P2   = 6;                                
+p3   = 3;
 Pmss =[P1 P2 p3];                         %1xM [Kw][P]
 
 %First Stage Call (Linear Programming problem)
-[ U, Energy, EnergyCost ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
+[ U, Energy, EnergyCost, X_m, U_m, Xf_m ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
 
 
