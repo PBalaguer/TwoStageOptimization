@@ -1,18 +1,20 @@
 function  VisualizeData(xmin,xmax, Xf_m,U_m, Delta_C,C)
 
-
+S_Delta_C=[];
+for i=1:length(Delta_C)
+S_Delta_C=[S_Delta_C, sum(Delta_C(:,1:i),2)];
+end
 [N D]=size(Xf_m);
-figure
 for i=1:D;
     subplot(D,1,i)
-    bar(Xf_m(:,i))
+    plot(S_Delta_C,Xf_m(:,i))
     hold on
     xmax_i=xmax(i)*ones(1,N);
     xmin_i=xmin(i)*ones(1,N);
-    plot([1:N],xmin_i,'r')
+    plot(S_Delta_C,xmax_i)
     hold on
-    plot([1:N],xmax_i,'r')
-    hold off
+    plot(S_Delta_C,xmax_i)
+    hold on
 end
 maxC=max(C);
 minC=min(C);
@@ -32,5 +34,4 @@ for j=1:M;
     bar(UminC,'g')
     hold on
     bar(UothC,'b')
-    hold off
 end

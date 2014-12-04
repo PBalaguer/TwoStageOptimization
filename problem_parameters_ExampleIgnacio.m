@@ -39,7 +39,7 @@ W = Disturbance.*(kron(ones(D,1),Delta_C));                         % Integral  
 
 % Initial Conditions and limits
 
-x0=[20; 200; 200; 30];                   % Initial State. V1 V2 V3 [Kl] [V]
+x0=[200; 100; 100; 100];                   % Initial State. V1 V2 V3 [Kl] [V]
 xmax = [400; 250; 250; 200];              % Maximum Volume [Kl][V]
 xmin =  [20; 20; 20; 20];                  % Minimum Volume [Kl][V]  
 % Power of Pump i [P]
@@ -49,9 +49,7 @@ P2   = 6;
 p3   = 3;
 Pmss =[P1 P2 p3];                         %1xM [Kw][P]
 
+%First Stage Call (Linear Programming problem)
+[ U, Energy, EnergyCost, X_m, U_m, Xf_m ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
 
-%Solving and plotting results
-
- [ U, Energy, EnergyCost, X_m, U_m, Xf_m ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
- VisualizeData(xmin,xmax, Xf_m,U_m, Delta_C,C)
 
