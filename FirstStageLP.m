@@ -43,7 +43,7 @@ Iden = ones( N, 1 );
 % W matrix 
 Wbar = [];
 for i = 1:N
-    Wbar = [ Wbar; sum( W( :, 1:i ), 2 ) ];          %Wbar D*Nx1 [V]       
+    Wbar = [ Wbar; sum( W( :, 1:i ), 2 )];          %Wbar D*Nx1 [V]       
 end
 
 % blp matrix in Alp * x < blp
@@ -63,7 +63,7 @@ subject to
   
 cvx_end
 
-Xf=A_barra*X+B_barra*U+Wbar+kron(x0,ones(N,1))   %[V] Xf describes the state vector for each period.
+Xf=A_barra*X+B_barra*U+Wbar+kron(ones(N,1),x0);  %[V] Xf describes the state vector for each period.
    
 
 %Output management
@@ -86,8 +86,7 @@ for i= 1:length(C);
     U_m=[U_m;transpose(U((i-1)*M+1:i*M))];
 end
 
-Energy       = kron(eye(N),Pmss)*U*(1/60)    %[P·T]
-EnergyCost   = Ct*U                          %[M]
+Energy       = kron(eye(N),Pmss)*U*(1/60) ;   %[P·T]
+EnergyCost   = Ct*U                        ;  %[M]
 
-
-
+% U_m_total=sum(U_m,1)
