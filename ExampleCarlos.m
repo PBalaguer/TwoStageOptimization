@@ -44,7 +44,6 @@ W = Disturbance.*[Delta_C; Delta_C; Delta_C];                       % Integral  
 
 % INITIAL CONDITIONS AND LIMITS
 
-x0=[200; 100 ; 100];                 	      % Initial State. V1 V2 V3 [Kl]
 xmax = [400; 250; 250];                       % Maximum Volume [Kl]
 xmin = [20; 20; 20];                          % Minimum Volume [Kl]
 P1   = 7;                                     % Power of Pump 1 [Kw]
@@ -53,7 +52,12 @@ P3   = 4;                                     % Power of Pump 3 [Kw]
 P4   = 3;                                     % Power of Pump 4 [Kw]
 Pmss =[P1 P2 P3 P4];                          % 1xM [Kw]
 
+for i=0:9 
+    
+x0=[xmin(1)+(xmax(1)-xmin(1))*i/9; 100 ; 100];           	      % Initial State. V1 V2 V3 [Kl]
+
 %First Stage Call (Linear Programming problem)
-[U,Energy,EnergyCost ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
+[U, Energy, EnergyCost, X_m, U_m, Xf_m] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
 
-
+pause
+end
