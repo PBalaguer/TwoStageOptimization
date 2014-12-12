@@ -67,20 +67,20 @@ Bd  = Sdd.b;
 % Abarrad
 
 Bbarrad=[];
-aux=[];
+aux=[zeros(n,M)];
 for i = 1:K
     for j = K:-1:i
         aux=[aux; Ad^(K-j) * Bd];
     end
     Bbarrad=[Bbarrad aux];
-    aux = [zeros( n*(i), M)];
+    aux = [zeros( n*(i+1), M)];
 end
 
 Iden = ones(K,1);
 
 Ikk=[];
 for i=1:K
-    Ikk=[Ikk; Ad^(i-1) * x0];
+    Ikk=[Ikk; Ad^(i) * x0];
 end
 
 wk =  repmat( Wi/K, 1, K);
