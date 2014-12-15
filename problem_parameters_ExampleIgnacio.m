@@ -53,5 +53,24 @@ Pmss =[P1 P2 p3];                         %1xM [Kw][P]
 %Solving and plotting results
 
  [ U, Energy, EnergyCost, X_m, U_m, Xf_m ] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
- VisualizeData(xmin,xmax, Xf_m,U_m, Delta_C,C)
+%  VisualizeData(xmin,xmax, Xf_m,U_m, Delta_C,C)
+ 
+ 
+%SECOND STAGE BIP
+% u_K_m=[]
+% L=input('Input value for L: ');
+%  for i=1:N
+%     Ui=U_m(i,:)';
+%     Delta_Ci=Delta_C(i);
+%     Wi=W(:,i);
+%     [u, L, x] = SecondStageBIP( Ui, Delta_Ci, L, x0, A, B, Wi, xmax, xmin);
+%     
+%     
+% end
+
+L=1
+Ui=U_m(1,:)'
+Delta_Ci=Delta_C(1);
+Wi=W(:,1);
+[U_m_K, L, X_m_K] = SecondStageBIP( Ui, Delta_Ci, L, x0, A, B, Wi, xmax, xmin)
 

@@ -24,7 +24,7 @@
 %   L:          Indirect sampling time. Integer.
 
 
-function [u, Umisum, L] = SecondStageBIP( Ui, Delta_Ci, L, x0, A, B, Wi, xmax, xmin, ops)
+function [U_m_K, L, Xf_m_K] = SecondStageBIP( Ui, Delta_Ci, L, x0, A, B, Wi, xmax, xmin, ops)
 
 
 % 0. - VARIABLE DEFINITION
@@ -41,6 +41,7 @@ if Ui_dummy == 0
 end
 
 Ui_dummy(Ui_dummy == 0) = [];
+Ui_dummy=round(Ui_dummy);
 Ui_greatest = Ui_dummy(1);
 for k = 2:length(Ui_dummy)
     Ui_greatest  = gcd(Ui_greatest,Ui_dummy(k)); % The greatest common divisor. Required for equating rational values.
@@ -76,43 +77,56 @@ for i = 1:K
     aux = [zeros( n*(i+1), M)];
 end
 
-Iden = ones(K,1);
+Iden = ones(K+1,1);
 
-Ikk=[];
+Ikk=[eye(n,n)*x0];
 for i=1:K
     Ikk=[Ikk; Ad^(i) * x0];
 end
 
 wk =  repmat( Wi/K, 1, K);
 
-Wbar = [];
+Wbar_K = [zeros(n,1)];
 for i = 1:K
-    Wbar = [ Wbar; sum( wk( :, 1:i ), 2 ) ];             
+    Wbar_K = [ Wbar_K; sum( wk( :, 1:i ), 2 ) ];             
 end
 
 
 Alp = [ -Bbarrad; Bbarrad ];
-blp = [-kron(xmin, Iden) + Ikk + Wbar; kron(xmax,Iden) - Ikk - Wbar ];
+blp = [-kron(xmin, Iden) + Ikk + Wbar_K; kron(xmax,Iden) - Ikk - Wbar_K ];
 
-% 4.- SOLVER CALL
-
-SumMatrix = [ repmat([1, 0], 1, K);repmat([0, 1], 1, K)];
-
-u = binvar( M*K, 1);
-Constraints = [  SumMatrix * u == (Ui * K/Delta_Ci), Alp * u <= blp  ];
-
-solvesdp(Constraints, [],ops);
- 
-uu = double(u);
-
-u=[];
-for k = 1:2:2*K
-    u = [u; uu(k:k+1)'];       % Extracts control actions u to an MxN matrix
+% CALL SOLVER
+eye_m=[];
+for i=1:K
+    eye_m=[eye_m eye(M)];
 end
 
-% Minute-wise pump state discretization
+cvx_begin
+variable u(M*K,1) binary %Actually u goes from u(0) to u(K-1) and x from x(0) to x(K)
 
-u = kron( u, ones(Delta_Ci/K,1));
+% minimize norm((eye_m*u-Ui),2)
+subject to
 
-Umisum = SumMatrix* uu * Delta_Ci/K;
+Alp*u<=blp;
+
+cvx_end
+
+x=Bbarrad*u+Ikk+Wbar_K
+
+Xf_m_K=[];
+for i= 1:(K+1)
+    Xf_m_K=[Xf_m_K;transpose(x((i-1)*n+1:i*n))];
+end
+
+U_m_K=[];
+for i= 1:length(K);
+    U_m_K=[U_m_K;transpose(u((i-1)*M+1:i*M))];
+end
+K
+
+
+
+
+
+
 
