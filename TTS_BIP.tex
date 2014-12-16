@@ -1,0 +1,1219 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%2345678901234567890123456789012345678901234567890123456789012345678901234567890
+%        1         2         3         4         5         6         7         8
+
+%\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
+                                                          % if you need a4paper
+\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
+                                                          % paper
+                                                          \usepackage[ansinew]{inputenc}
+\usepackage{eurosym}
+\usepackage{amssymb}
+\usepackage[ansinew]{inputenc}
+\usepackage{amsmath}
+\usepackage{latexsym}
+\usepackage{epsfig} %(this is to import figures)
+\usepackage{psfrag}
+\usepackage{dsfont}
+\usepackage{nomencl}
+
+\newtheorem{assumption1}{Assumption}
+\newtheorem{assumption2}[assumption1]{Assumption}
+
+
+\newtheorem{remark1}{Remark}
+
+\IEEEoverridecommandlockouts                              % This command is only
+                                                          % needed if you want to
+                                                          % use the \thanks command
+\overrideIEEEmargins
+% See the \addtolength command later in the file to balance the column lengths
+% on the last page of the document
+
+
+
+% The following packages can be found on http:\\www.ctan.org
+%\usepackage{graphics} % for pdf, bitmapped graphics files
+%\usepackage{epsfig} % for postscript graphics files
+%\usepackage{mathptmx} % assumes new font selection scheme installed
+%\usepackage{times} % assumes new font selection scheme installed
+%\usepackage{amsmath} % assumes amsmath package installed
+%\usepackage{amssymb}  % assumes amsmath package installed
+
+\title{\LARGE \bf
+A New Approach to Optimal Energy Management with Discrete Control}
+
+%\title{\LARGE \bf
+%A New Approach to Optimal Energy Demand Side Management with
+%Discrete Control Variables}
+
+%\author{ \parbox{3 in}{\centering Huibert Kwakernaak*
+%         \thanks{*Use the $\backslash$thanks command to put information here}\\
+%         Faculty of Electrical Engineering, Mathematics and Computer Science\\
+%         University of Twente\\
+%         7500 AE Enschede, The Netherlands\\
+%         {\tt\small h.kwakernaak@autsubmit.com}}
+%         \hspace*{ 0.5 in}
+%         \parbox{3 in}{ \centering Pradeep Misra**
+%         \thanks{**The footnote marks may be inserted manually}\\
+%        Department of Electrical Engineering \\
+%         Wright State University\\
+%         Dayton, OH 45435, USA\\
+%         {\tt\small pmisra@cs.wright.edu}}
+%}
+
+\author{P. Balaguer, J.C. Alfonso, Ignacio and Jose% <-this % stops a space
+%\thanks{This work was not supported by any organization}% <-this % stops a space
+\thanks{P. Balaguer and J.C. Alfonso are with Departament d'Enginyeria de Sistemes Industrials i
+Disseny, Universitat Jaume I de Castelló, Castelló, Spain.
+        {\tt\small pbalague@uji.es, calfonso@uji.es}}%
+\thanks{J. Zhang and X. Xia are with the Centre of New Energy Systems, Department
+of Electrical, Electronic and Computer Engineering, University of
+Pretoria, South Africa.
+        {\tt\small zhang@up.ac.za, xxia@up.ac.za}}
+}
+
+\begin{document}
+
+
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+
+In this article, we present a new approach to the solution of
+optimization problems with discrete control variables modeled by
+binary integer programs (BIP). The solution of BIP is
+computationally demanding when the number of the BIP variables
+increase. Two instances that increase the number BIP variables in
+practical applications are the reduction of the discretization
+sampling time and the increase of the optimization time period. The
+proposed approach transforms a single BIP optimization into a linear
+program (LP) and $N$ feasibility BIP's, with less number of
+variables. The reduction of the number of variables increases the
+algorithm speed in providing a solution. The approach permits to
+solve optimization problems with longer time intervals and with a
+higher number of control variables, while being computationally
+tractable. A case study on the electricity cost minimization in a
+pumping station shows the applicability of the method.
+
+\end{abstract}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{INTRODUCTION}
+The presence of discrete control variables transforms standard
+continuous optimization problems~\cite{bertsimas:97} into integer
+optimization problems, which are computationally more demanding and
+shown to be NP-hard~\cite{williams:09}. Integer optimization
+applications are prevalent in electric power systems such as the
+minimization of electricity cost by means of loads
+management~\cite{load:01}~\cite{xia:09}, optimization of hybrid
+systems operation~\cite{mix:04}~\cite{vieira:09}, reactive power and
+voltage control~\cite{reactive2:09}, and on optimal energy
+management in liberalized markets~\cite{liberalized:03}, among
+others.
+
+The previously introduced minimization problems are normally cast on
+time periods of 24 hours because of the periodic nature of the
+problem to be solved. The common approach to the solution of integer
+minimization problem is to discretize the continuous objective
+function and constraints using a one hour discretization sampling
+time~\cite{load:01}~\cite{xia:09}~\cite{mix:04}~\cite{vieira:09}~\cite{reactive2:09}.
+
+Although useful practical results may be accomplished using the
+discretization process, the procedure has fundamental limitations
+that prevent their utilization as a general approach. The main
+problem relies on the curse of dimensionality problem of integer
+programs~\cite{williams:09}. From a practical point of view, the
+curse of dimensionality imposes a trade-off between the
+discretization time, equivalently the number of program variables,
+and the optimality of the achieved solution. In fact optimality of
+the solution is compromised by the discretization~\cite{sager:09}
+because not only the minimum on-off time is determined by the
+sampling time but also the on-off time instants are fixed by the
+discretization procedure. In general the chosen discretization
+pattern is unable to provide the optimal solution.
+
+Moreover, the discretization approach also shows fundamental
+limitations in other settings, for instance, when incorporating
+predictions on the optimization~\cite{vieira:09}. In this case the
+problem time period can be enlarged beyond the 24 hours if longer
+forecast periods are available, thus increasing the number of the
+program variables. On the other hand, time period of 24 hours may
+not be large enough in certain applications. Even if a feasible
+solution to the minimization problem is found, it has been shown
+that the feasible solution, when periodically repeated, may become
+infeasible~\cite{xia:11}. Prediction time periods and feasibility
+issues of repeated optimal solutions motivate the necessity of
+optimization procedures that can enlarge the optimization time
+horizon.
+
+%Other approaches to the solution of integer programs include
+%relaxation procedures~\cite{reactive1_02}, where suboptimal
+%solutions are found by rounding solutions to their nearest integer
+%value, genetic algorithms~\cite{genetic:05}, and swarm
+%optimization~\cite{swarm:09}. Genetic algorithms and swarm
+%optimization techniques also find suboptimal solutions and require a
+%fine tuning of algorithm parameters, although they increase the
+%class of problems to be solved.
+
+In this article we present a new approach for solving binary integer
+programs (BIP) that increases the time horizon without compromising
+problem solvability due to computational burden. In this way the
+solution is given in a two steps procedure. In the first step, the
+BIP is transformed into a linear program (LP) by integration of the
+binary variables. The solution of the LP provides the optimal energy
+consumption integral per interval. In the second step, the optimal
+energy value calculated is supplied in a binary way, by solving a
+BIP feasibility problem. In this way, a unique BIP is transformed
+into a LP plus $N$ feasibility BIP's related to shorter time
+intervals with fewer variables. The reduction of the number of
+variables presents an advantage because algorithms work faster with
+fewer variables. Moreover, in the second stage, the algorithm only
+requires a feasible solution, not an optimal one. Finally, the
+approach permits to keep the complexity of the feasible BIP bounded
+while the optimization period can be made arbitrarily large,
+increasing its practical utility.
+
+\section{PROBLEM FORMULATION}
+
+
+
+\subsection{Problem Statement}
+We consider the optimal energy cost management of a number of $M$
+loads during a time period $T$ by minimizing the following cost
+function
+
+\begin{equation}\label{eq:min_ps}
+J=\sum_{m=1}^{M}\int_{0}^{T}C(t)P_m(t)dt
+\end{equation}
+
+\noindent where $C(t)$ is the energy cost, and $P_m(t)$ is the power
+consumption of load $m$.
+
+\begin{assumption1}\label{ass:ss}
+Function $C(t)$ is piecewise constant with $N$ intervals per period.
+\end{assumption1}
+%Normally the electricity price tariff is given by piecewise
+%functions.
+
+The power consumption is controlled by discrete variables $u_m(t), \
+\ m=1,\ldots,M$, where
+
+\begin{equation*}
+u_m(t) = \left\{
+\begin{array}{rl}
+1, & \text{load m is on}\\
+0, & \text{load m is off}
+\end{array} \right.
+\end{equation*}
+
+\begin{assumption2}\label{ass:piecewise}
+The power consumption of load $m$, $P_m(t)$ is given by
+$P_m(t)=P_{m}^{ss}u_m(t)$, where $P_{m}^{ss}$ is the steady state
+power consumption, and $u_m(t)$ is the discrete control action.
+\end{assumption2}
+
+The objective function~(\ref{eq:min_ps}) is to be minimized subject
+to the following constraints
+
+\begin{eqnarray}
+s.t.&&\dot{x}(t)=Ax(t)+B_ww(t)+Bu(t) \label{eq:ss}\\
+&&x_{min} \leq x(t) \leq x_{max}\label{eq:bounds}\\
+&&u(t) \in \{0,1\}\label{eq:discrete}
+\end{eqnarray}
+
+
+\noindent where equation~(\ref{eq:ss}) is a continuous time dynamic
+model represented in state space form~\cite{ogata:96} with state
+vector $x(t) \in \mathbb{R}^{n}$, disturbance vector $w(t) \in
+\mathbb{R}^{D}$, input vector $u(t) \in \mathbb{R}^{M}$, and dynamic
+matrix $A \in \mathbb{R}^{n \times n}$, disturbance matrix $B_w \in
+\mathbb{R}^{n \times D}$ and input matrix $B \in \mathbb{R}^{n\times
+M}$. Equation~(\ref{eq:bounds}) are bounds on the state $x(t)$ and
+equation~(\ref{eq:discrete}) refers to the discrete value of control
+actions.
+
+The BIP mathematical program set by cost function~(\ref{eq:min_ps})
+and constrains~(\ref{eq:ss})-(\ref{eq:discrete}) captures the energy
+cost minimization of a continuous time dynamical system with bounds
+on the state values. The mathematical formulation captures
+significant practical problems such as the energy management of a
+colliery~\cite{xia:09}, peak load management in steel
+plants~\cite{ashok:06}, demand side management of a mine winder
+system~\cite{xia_mine:11}, optimization of wind-hydro plant
+operation~\cite{vieira:09}, and energy cost minimization on pumping
+stations~\cite{moradi:08}, among others. Moreover further
+constraints commonly used in industrial settings such production
+constrains, storage constraints, sequential constraints, and down
+time of machines, among others can be cast in the framework
+proposed~\cite{load:01}.
+\section{PROBLEM TRANSFORMATION}
+The complexity of solving the BIP is circumvented by a two step
+approach. First the BIP is transformed into a LP that can be solved
+more easily. Secondly $N$ simpler feasibility BIP are solved to
+recover the discrete control actions.
+
+\subsection{From BIP to LP}
+The minimization of cost function~(\ref{eq:min_ps}), subject
+to~(\ref{eq:ss})-(\ref{eq:discrete}), is a linear BIP because the
+on-off nature of the control actions. However if the binary decision
+variable $u_m(t)$ is  integrated, the integral $\int_{\Delta
+t}u_m(t)dt$ is no longer binary but real, thus yielding a linear
+program. Following assumptions~\ref{ass:ss} and~\ref{ass:piecewise},
+the cost function~(\ref{eq:min_ps}) can be rewritten as
+
+\begin{equation}\label{eq:Jdisc}
+J=\sum_{m=1}^{M}\sum_{i=1}^{N}C_{i}P_{m}^{ss}\int_{t_{i-1}}^{t_i}u_m(t)dt
+\end{equation}
+
+\noindent where $U_{mi}=\int_{t_{i-1}}^{t_i}u_m(t)dt$ is the
+operation time of load $m$ scheduled during time period $\Delta
+t_i=t_{i}-t_{i-1}$, at constant price $C_{i}$. Figure~\ref{fig:var}
+presents the time interval $T$ divided into intervals $\Delta t_i$
+with constant electricity price, together with the variables
+associated to each interval.
+%In this way, for each load, we have transformed a binary variable
+%$u_m(t)$ in a real variable $U_{mi}=\int_{\Delta t_i}u_m(t)dt$.
+The objective function~(\ref{eq:Jdisc}) is rewritten as
+
+\begin{equation}\label{eq:LPJ}
+J=\sum_{m=1}^{M}P_{m}^{ss}\sum_{i=1}^{N}C_{i}U_{mi}
+\end{equation}
+
+\noindent which is a linear function with $MN$ decision variables
+$U_{mi}$.
+
+%Remark: The cost function is discretizated
+
+\begin{figure}[thpb]
+    \centering
+    \psfrag{0}[][]{\fontsize{8}{8}\selectfont\textsf{$0$}}
+    \psfrag{1}[][]{\fontsize{8}{8}\selectfont\textsf{$C_1$}}
+    \psfrag{2}[][]{\fontsize{8}{8}\selectfont\textsf{}}
+    \psfrag{im1}[][]{\fontsize{8}{8}\selectfont\textsf{$i-1$}}
+    \psfrag{i}[][]{\fontsize{8}{8}\selectfont\textsf{$C_i$}}
+    \psfrag{Nm1}[][]{\fontsize{8}{8}\selectfont\textsf{}}
+    \psfrag{N}[][]{\fontsize{8}{8}\selectfont\textsf{$C_N$}}
+
+    \psfrag{t0}[][]{\fontsize{8}{8}\selectfont\textsf{$t_0$}}
+    \psfrag{t1}[][]{\fontsize{8}{8}\selectfont\textsf{$t_1$}}
+    \psfrag{tim1}[][]{\fontsize{8}{8}\selectfont\textsf{$t_{i-1}$}}
+    \psfrag{ti}[][]{\fontsize{8}{8}\selectfont\textsf{$t_i$}}
+    \psfrag{tNm1}[][]{\fontsize{8}{8}\selectfont\textsf{$t_{N-1}$}}
+    \psfrag{tN}[][]{\fontsize{8}{8}\selectfont\textsf{$t_N$}}
+
+    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U_{1}$}}
+    \psfrag{U2}[][]{\fontsize{8}{8}\selectfont\textsf{}}
+    \psfrag{Uim1}[][]{\fontsize{8}{8}\selectfont\textsf{$U_{(i-1)}$}}
+    \psfrag{Ui}[][]{\fontsize{8}{8}\selectfont\textsf{$U_{i}$}}
+    \psfrag{UNm1}[][]{\fontsize{8}{8}\selectfont\textsf{}}
+    \psfrag{UN}[][]{\fontsize{8}{8}\selectfont\textsf{$U_{N}$}}
+
+    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$x(t_{0})$}}
+    \psfrag{V1}[][]{\fontsize{8}{8}\selectfont\textsf{$x(t_{1})$}}
+    \psfrag{Vim1}[][]{\fontsize{8}{8}\selectfont\textsf{$x(t_{i-1})$}}
+    \psfrag{Vi}[][]{\fontsize{8}{8}\selectfont\textsf{$x(t_{i})$}}
+    \psfrag{VNm1}[][]{\fontsize{8}{8}\selectfont\textsf{$x(t_{N-1})$}}
+    \psfrag{VN}[][]{\fontsize{8}{8}\selectfont\textsf{$x(t_{N})$}}
+
+    \psfrag{Deltat}[][]{\fontsize{8}{8}\selectfont\textsf{$\Delta t_{i}$}}
+
+%    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$V(0)$}}
+%    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U(t_1)$}}
+    %\psfrag{ep}[][]{\fontsize{8}{8}\selectfont\textsf{$EP$}}
+%    \psfrag{t}[][]{\fontsize{8}{8}\selectfont\textsf{$T$}}
+%    \psfrag{p}[][]{\fontsize{8}{8}\selectfont\textsf{$G(s)$}}
+%    \psfrag{k}[][]{\fontsize{8}{8}\selectfont\textsf{$K^{-1}$}}
+%    \psfrag{r}[][]{\fontsize{8}{8}\selectfont\textsf{$R$}}
+
+
+    \includegraphics[scale=0.6]{nomenclature.eps}
+    \caption{Problem Variables.}
+    \label{fig:var}
+\end{figure}
+
+The constraints~(\ref{eq:ss})-(\ref{eq:discrete}) are also
+integrated. First integrating the system dynamics~(\ref{eq:ss}) we
+have
+
+\begin{eqnarray}\label{eq:LPx}
+x(t_i)&-&x(t_{i-1})=A\int_{t_{i-1}}^{t_{i}}x(t)dt+ \nonumber \\
+&+&B_w\int_{t_{i-1}}^{t_{i}}w(t)dt+B\int_{t_{i-1}}^{t_{i}}u(t)dt.
+\end{eqnarray}
+
+\noindent Performing the change of variables
+$X_{i}=\int_{t_{i-1}}^{t_{i}}x(t)dt$ and
+$W_{i}=\int_{t_{i-1}}^{t_{i}}w(t)dt$, and reordering
+expression~(\ref{eq:LPx}), the state value at time instant $t_{i}$
+is
+
+\begin{equation}\label{eq:vint}
+x(t_i)=x(t_{i-1})+AX_{i}+B_wW_{i}+BU_{i}.
+\end{equation}
+
+\noindent The disturbance $W_{i}$ is known, whereas $X_{i}$ and
+$U_{i}$ are the decision variables, hence by the variables grouping
+
+\begin{eqnarray}
+\bar{A}&=&
+\begin{bmatrix}
+A & B
+\end{bmatrix}\\
+\bar{V}_{i}&=&
+\begin{bmatrix}
+X_{i}\\
+U_{i}
+\end{bmatrix}
+\end{eqnarray}
+
+
+\noindent we have that, finally, equation~(\ref{eq:vint}) can be
+expressed as
+
+\begin{equation}\label{eq:ssdisc}
+x(t_i)=x(t_{i-1})+B_wW_{i}+\bar{A}\bar{V}_{i}
+\end{equation}
+
+\noindent for $i=1,\ldots,N$.
+
+Applying the state constraint~(\ref{eq:bounds}) to
+equation~(\ref{eq:ssdisc}) yields
+
+\begin{eqnarray}
+x_{min}-x(0)-B_w\sum_{i=1}^{j}W_i&\leq& \bar{A}\sum_{i=1}^{j}\bar{V}_{i}\\
+x_{max}-x(0)-B_w\sum_{i=1}^{j}W_i&\geq&
+\bar{A}\sum_{i=1}^{j}\bar{V}_{i}
+\end{eqnarray}
+
+\noindent for $j \in [1,\ldots,N]$, which can be finally written as
+
+\begin{equation}\label{eq:axb}
+\begin{bmatrix}
+-A_{T}\\
+A_{T}
+\end{bmatrix}
+\begin{bmatrix}
+\bar{V}_{1}\\
+\vdots\\
+\bar{V}_{N}\\
+\end{bmatrix}
+\leq
+\begin{bmatrix}
+-\mathds{1}_{1\times n}\otimes(x_{min}-x_0)+B_w\otimes W\\
+\mathds{1}_{1\times n}\otimes(x_{max}-x_0)-B_w\otimes W
+\end{bmatrix}
+\end{equation}
+
+
+\noindent where $\otimes$ is the matrix Kronecker product~\cite[p.
+399]{matrix:09}, and
+
+\begin{eqnarray}\label{eq:axbb}
+A_{T}=
+\begin{bmatrix}
+\bar{A} & 0 & \ldots & 0\\
+\bar{A} & \bar{A} & \ldots & 0\\
+\bar{A} & \bar{A} & \ldots & \bar{A}
+\end{bmatrix}, \ \
+W=
+\begin{bmatrix}
+W_{1}\\
+W_{1}+W_{2}\\
+\vdots\\
+\sum_{i}^{N}W_{i}\\
+\end{bmatrix}
+\end{eqnarray}
+
+
+\noindent In this way the inequality~(\ref{eq:axb}) is written as
+the standard inequality $Ax\leq b$ of linear programs.
+
+
+
+The integral of the control action is also limited by
+
+\begin{equation}\label{eq:cca}
+0_{M\times 1} \leq U_{i} \leq \mathds{1}_{M\times 1} \Delta t_{i}
+\end{equation}
+
+%\begin{equation}\label{eq:cca}
+%0\leq U_{i} \leq \Delta t_{i}
+%\end{equation}
+
+
+\noindent which sets the constraints on the control action. In fact
+constraint~(\ref{eq:cca}) sets that the minimum value of the control
+action is 0, that is the loadis off during all the time interval. On
+the other hand, the bound $\Delta t_{i}$, sets that the load can be,
+at most, on during all the time interval.
+
+%\begin{remark1}
+%The variables $X_{i}$ do not appear on the cost function but only on
+%the constraints because the minimization problem is an energy cost
+%minimization. However, it is straightforward to include $X_{i}$ in
+%the cost function when the state integral is also to be minimized.
+%In this case the following constraint on the state integral should
+%also be added to the LP
+%
+%\begin{equation}
+%x_{min}\Delta t_{i}\leq X_{i} \leq x_{max}\Delta t_{i}
+%\end{equation}
+%
+%\end{remark1}
+
+
+
+
+
+
+
+\subsection{Discrete Control Actions}
+Once the LP defined by cost function~(\ref{eq:LPJ}) and
+constraints~(\ref{eq:axb})-(\ref{eq:cca}) is solved, the optimal
+energy consumption per period $U_{i}, \ \ i=1,\ldots, N$ is known.
+However, the energy is supplied by a discrete control variable
+$u(t)$, but the previos stage only provides its integral value, that
+is, $\int_{\Delta t}u(t)dt$. The discrete control variable is
+recovered by finding a feasible BIP solution for each period
+$i=1,\ldots,N$ with constant electricity price. In this way, period
+$i$ with constant electricity price is discretized in $K$ parts and
+a solution is given by any feasible solution of the BIP with
+constraints
+
+\begin{eqnarray}
+\frac{\Delta t_i}{K}\sum_{k=0}^{K-1}u_m(k)=U_{mi}, \ \ m=1,\ldots,M \label{eq:bipener}\\
+x(k+1)=A_dx(k)+B_{wd}w(k)+B_du(k)\label{eq:bipss}\\
+x_{min} \leq x(k) \leq x_{max}\label{eq:bipbounds}\\
+u(k) \in \{0,1\}\label{eq:bipdiscrete}
+\end{eqnarray}
+
+%\begin{eqnarray}
+%&&\frac{\Delta t_i}{K}\sum_{k=1}^{K}u_m(k)=U_{mi}, \ \ m=1,\ldots,M \label{eq:bipener}\\
+%&&x(k+1)=A_dx(k)+B_{wd}w(k)+B_du(k)\label{eq:bipss}\\
+%&&x_{min} \leq x(k) \leq x_{max}\label{eq:bipbounds}\\
+%&&u(k) \in \{0,1\}\label{eq:bipdiscrete}
+%\end{eqnarray}
+
+\noindent where~(\ref{eq:bipener}) constraints the supplied energy
+to be equal to the optimal value obtained by the previous LP,
+equations~(\ref{eq:bipss}) and~(\ref{eq:bipbounds}) are the discrete
+time version of the continuous system dynamics,
+and~(\ref{eq:bipdiscrete}) recovers the discrete nature of the
+control action. Matrices $A_d \in \mathbb{R}^{n\times n}$, $B_{wd}
+\in \mathbb{R}^{n\times D}$ and $B_d \in \mathbb{R}^{n\times M}$ are
+obtained by zero order hold discretization from their continuous
+time counterparts. Discrete time vectors have the same dimensions as
+their continuous counterparts, hence $x(k) \in \mathbb{R}^{n}$,
+$w(k) \in \mathbb{R}^{D}$, and $u(k) \in \mathbb{R}^{M}$.
+
+\begin{remark1}\label{rem:zoh}
+Dynamic model~(\ref{eq:bipss}) is the zero order hold discretization
+of continuous time model~(\ref{eq:ss}). Moreover, during sampling
+times, control action is constant due to its integer nature, as a
+result both models~(\ref{eq:bipss}) and~(\ref{eq:ss}) yield the same
+value at sampling times~\cite{ogata:95}, thus the discretization is
+exact.
+\end{remark1}
+
+The BIP defined by~(\ref{eq:bipener})-(\ref{eq:bipdiscrete}) can be
+written in standard form as follows. First, the
+constraint~(\ref{eq:bipener}) is written in matrix form as
+
+\begin{equation}\label{eq:equalbip}
+\mathds{1}_{M\times K}
+\begin{bmatrix}
+u(0)\\
+u(1)\\
+\vdots\\
+u(K-1)\\
+\end{bmatrix}=U_{i}\frac{K}{\Delta t_i}.
+\end{equation}
+
+Next, equation~(\ref{eq:bipss}) is written, for all $k=0,\ldots,K$,
+in matrix form as
+%equation~(\ref{eq:dsst}). Now
+
+
+
+\begin{eqnarray}
+\begin{bmatrix}
+x(0)\\
+x(1)\\
+\vdots\\
+x(K)
+\end{bmatrix}&=&
+\begin{bmatrix}
+I_{n\times n}\\
+A_d^1\\
+\vdots\\
+A_d^{K}\\
+\end{bmatrix}\otimes x(0)+
+\bar{B}_{wd}
+\begin{bmatrix}
+w(0)\\
+w(1)\\
+\vdots\\
+w(K-1)
+\end{bmatrix} \nonumber\\
+&+& \bar{B}_d
+\begin{bmatrix}
+u(0)\\
+u(1)\\
+\vdots\\
+u(K-1)
+\end{bmatrix}\label{eq:dsst}
+\end{eqnarray}
+
+\noindent with
+
+\begin{eqnarray}
+\bar{B}_{wd}&=&\begin{bmatrix}\label{eq:barbwdbd}
+0_{n\times D} & 0_{n\times D} & \ldots & 0_{n\times D} \\
+B_{wd} & 0_{n\times D}& \ldots & 0_{n\times D}  \\
+A_dB_{wd} & B_{wd} & \ldots   & 0_{n\times D} \\
+\vdots\\
+A_d^{K-1}B_{wd} & A_d^{K-2}B_{wd} & \ldots   & B_{wd} \\
+\end{bmatrix}
+\end{eqnarray}
+\begin{eqnarray}
+\bar{B}_d&=&\begin{bmatrix}\label{eq:barbd}
+0_{n\times M} & 0_{n\times M} & \ldots & 0_{n\times M} \\
+B_d & 0_{n\times M}& \ldots & 0_{n\times M}  \\
+A_dB_d & B_d & \ldots   & 0_{n\times M} \\
+\vdots\\
+A_d^{K-1}B_d & A_d^{K-2}B_d & \ldots   & B_d \\
+\end{bmatrix}
+\end{eqnarray}
+
+Constraint~(\ref{eq:bipbounds}) applied to equation~(\ref{eq:dsst})
+yields
+
+
+\begin{eqnarray}\label{eq:axbbip}
+&&\begin{bmatrix}
+-\bar{B}_{d}\\
+\bar{B}_{d}
+\end{bmatrix}
+\begin{bmatrix}
+u(0)\\
+u(1)\\
+\vdots\\
+u(K-1)\\
+\end{bmatrix}
+\leq \nonumber\\
+&&
+\begin{bmatrix} -x_{min}\otimes\mathds{1}_{K\times 1}+
+\begin{bmatrix}
+I_{n\times n}\\
+A_d^1\\
+\vdots\\
+A_d^{K}\\
+\end{bmatrix}\otimes x(0)+
+\bar{B}_{wd}
+\begin{bmatrix}
+w(0)\\
+w(1)\\
+\vdots\\
+w(K-1)\\
+\end{bmatrix}\\
+x_{max}\otimes\mathds{1}_{K\times 1}-
+\begin{bmatrix}
+I_{n\times n}\\
+A_d^1\\
+\vdots\\
+A_d^{K-1}\\
+\end{bmatrix}\otimes x(0)-
+\bar{B}_{wd}
+\begin{bmatrix}
+w(0)\\
+w(1)\\
+\vdots\\
+w(K-1)\\
+\end{bmatrix}
+\end{bmatrix}\nonumber\\
+\end{eqnarray}
+
+\noindent yielding the standard BIP linear inequality $Ax\leq b$.
+
+\subsection{Sampling Time Selection}
+The sampling time $T_s=\Delta t_{i}/K$ to obtain the BIP must be
+chosen with care because, on the one hand, the smaller the sampling
+time the larger the number of BIP variables, and, on the other hand,
+if the sampling time is too large the resulting BIP problem may be
+infeasible. Moreover, the sampling time selection may be used to
+meet the integer constraints on equation~(\ref{eq:bipener}). Recall
+that the term $\sum_{k}u_m(k)$ is an integer for $m=1 \ldots M$.
+From equation~(\ref{eq:bipener}), $U_{mi}/T_s$ for $m=1 \ldots M$
+must also be an integer to have a meaningful BIP. We assume that
+$U_{mi} \in \mathbb{N}$, by rounding $U_{mi}$ up to the desired
+accuracy degree. By choosing a sampling time equal to
+$T_s=U_{gcd}/L$, with $U_{gcd}$ the greatest common divisor of
+$\{U_{1i}, U_{2i},\ldots,U_{Mi}\}$, and $L \in \mathbb{N}$, we may
+guarantee the integer value of $U_{mi}/T_s$ for $m=1 \ldots M$. It
+is worth to mention that the term $L$, whenever $K=\Delta
+t_{i}L/U_{gcd} \in \mathbb{N}$, does not have influence on the
+optimality of the energy consumption but it has influence on the
+feasibility and complexity of the BIP problem. In fact the BIP
+number of time slots is given by $K=\Delta t_{i}L/U_{gcd}$. A lower
+bound on the BIP complexity is provided by $L=1$ but the BIP may be
+infeasible. In this case parameter $L$ must be increased to obtain a
+feasible solution at the cost of increasing the BIP complexity
+because the BIP variables number is given by $MK$, where $M$ is the
+number of loads to be scheduled.
+
+
+
+%One approach would be: First select a small $L$ value (i.e. a lower
+%bound is $L=1$). If the problem is feasible then it is solved.
+%Otherwise increase the variable $L$. The number of BIP variables is
+%given by $MK$, where $M$ is the number of loads to be scheduled and
+%$K$ is the number of time slots equal to $K=\Delta t_{i}L/U_{mcm}$,
+%with $\Delta t_{i}$ the time interval length and $U_{gcd}$ the great
+%common denominator. This has been modified in the article as
+%follows:(new section)
+%
+%
+%In fact, choosing $L=U_{gcd}$ we have that
+%$U_{mi}/T_s=U_{mi}L/U_{gcd}=U_{mi} \in \mathbb{N}$. However, it is
+%possible that for $L<U_{gcd}$ we also have that $U_{mi}L/U_{gcd} \in
+%\mathbb{N}$. For $L=1$ the sampling time is equal to $U_{gcd}$.
+%Increasing $L$ provides more freedom in the way energy is deployed
+%on the period, although the number of the feasibility BIP variables
+%increases. It is worth to mention that the term $L$ does not have
+%influence on the optimality of the energy consumption but it has
+%influence on the feasibility of the BIP problem.
+
+%%%%%%%%%%%%%%%%%%%%
+
+%The the complexity of finding a feasible solution to the BIP is
+%determined by the discretization of the period with constant
+%electricity price, because the discretization determines the number
+%of the BIP variables. The sampling time is defined as $T_s=\Delta
+%t_{i}/K$.
+%
+%The sampling time $T_s$ must be chosen with care, because integer
+%constraints must be met. Recall that the term $\sum_{k}u_m(k)$ is an
+%integer for $m=1 \ldots M$. From equation~(\ref{eq:bipener}),
+%$\sum_{k}u_m(k)=U_{mi}/T_s$ for $m=1 \ldots M$, thus to have a
+%meaningful BIP $U_{mi}/T_s$ for $m=1 \ldots M$, must be an integer.
+%
+%By choosing a sampling time equal to $T_s=U_{mcm}/L$, with $U_{mcm}$
+%the minimum common multiple of $\{U_{1i}, U_{2i},\ldots,U_{Mi}$, and
+%$L \in \mathbb{N}$, we can guarantee the integer value of $U_mi/T_s$
+%for $m=1 \ldots M$. For $L=1$ the sampling time is equal to $U_mcm$.
+%Increasing $L$ provides more freedom in the way energy is deployed
+%on the period, although the number of the feasibility BIP variables
+%increases. It is worth to mention that the term $L$ does not have
+%influence on the optimality of the energy consumption but it has
+%influence on the feasibility of the BIP problem.
+%
+%The number of subintervals $K \in \mathbb{Z}$ is related to $L$ by
+%$K=\Delta t_{i}L/U_{mcm}$ when the proposed sampling time is used.
+%In order to exactly discretize the given interval it should be
+%accomplished that $\Delta t_{i}/U_{mcm} \in \mathbb{Z}$ what, in
+%general, does not hold. However, by increasing the value $L$ the
+%term $K=\Delta t_{i}L/U_{mcm}$ approximates an integer. As a result,
+%by increasing the value of $L$ we assure that the BIP is feasible
+%and that the time discretization error is diminished but we increase
+%the number of variables of the feasible BIP.
+
+
+
+%\section{PROBLEM SOLUTION}
+%
+%A summary of the solution methodology proposed is divided into 5
+%steps as follows:
+%
+%\begin{itemize}
+%\item[Step 1:]Define $N$ as the number of time intervals with
+%constant electricity price and construct the objective
+%function~(\ref{eq:LPJ}) and constraint~(\ref{eq:axb}) using $A_{T}$
+%and $W$ as in~(\ref{eq:axbb}).
+%\item[Step 2:] Solve the previous LP~(\ref{eq:LPJ}),~(\ref{eq:axb}) and obtain $U_i$ for $i=1,\ldots,N$. $U_i$ provides the optimal energy consumption per period
+%$i=1,\ldots,N$ with constant electricity price.
+%\item[Step 3:] Select $L=1$ and construct the
+%BIP~(\ref{eq:bipener})-(\ref{eq:bipdiscrete}) by
+%constructing~(\ref{eq:equalbip}), $\bar{B}_{wd}$, and $\bar{B}_{d}$,
+%as defined in~(\ref{eq:barbwdbd}) and~(\ref{eq:barbd}),
+%respectively. Repeat the procedure for each time interval
+%$i=1,\ldots,N$ with $U_i\neq 0$.
+%\item[Step 4:] Find a feasible solution of the
+%BIP~(\ref{eq:bipener})-(\ref{eq:bipdiscrete}) and apply the feasible
+%solution $u_m(k)$ for each load $m=1,\ldots,M$, and for each
+%$k=1,\ldots,K$.
+%\item[Step 5:] In case that the BIP~(\ref{eq:bipener})-(\ref{eq:bipdiscrete}) is infeasible, repeat from
+%step 3 with $L=L+1$.
+%\end{itemize}
+
+
+\section{CASE STUDY}
+Water supply systems present high-energy consumption values, which
+corresponds to the major expenses of these systems. In this section
+we consider the optimal operation of the water supply system
+presented in Figure~\ref{fig:ps}. It consists on three reservoirs
+and two pumps to be controlled. A constant flow input of $F_{e}=1/6$
+Kilo-liter per minute, or Kl/min, is entering reservoir 1
+(Fig.~\ref{fig:ps}), while reservoirs 2 and 3 must supply a constant
+flow of $F_{o2}=F_{o2}=1/12$ Kl/min each. The maximum volume of
+reservoir 1, 2, and 3 is $0.4$ Ml, $0.25$ Ml and $0.25$ Ml,
+respectively whereas the minimum volume is $0.02$ Ml, $0.02$ Ml, and
+$0.02$ Ml. Pump 1 provides a nominal flow of $F_1=1/2$ Kl/min and a
+power consumption of $P_1=5$ KW. Pump 2 provides a nominal flow of
+$F_2=3/5$ Kl/min and the power consumption is $P_2=6$ KW because not
+only the flow is higher but also the piezometric height of reservoir
+3 is higher than reservoir 2. The objective is to minimize the
+operation electricity cost while maintaining the reservoirs volume
+constraints.
+
+%Electricity cost is a function of the energy consumption and the
+%daily electrical tariff.
+
+The electricity price, in cents of euro per KWh or c \euro/KWh, has
+6 intervals during a 24 hours period, and is given by
+
+\begin{eqnarray}
+11.87\ \ c \text{\euro}/KWh, \ \ t&=&[0,6]\cup[22,24] \nonumber \\
+14.11\ \ c \text{\euro}/KWh, \ \ t&=&[6,7]\cup[10,18] \nonumber \\
+82.05\ \ c \text{\euro}/KWh, \ \ t&=&[7,10]\cup[18,22] \nonumber
+\end{eqnarray}
+
+
+that shows 6 time intervals of very different time duration, ranging
+from 1 to 8 hours. Moreover it presents a high cost on the peak
+hours.
+
+
+
+\begin{figure}[thpb]
+    \centering
+    \psfrag{fi}[][]{\fontsize{8}{8}\selectfont\textsf{$F_e=1/6$ Kl/min}}
+    \psfrag{fo2}[][]{\fontsize{8}{8}\selectfont\textsf{$F_{o2}=1/12$ Kl/min}}
+    \psfrag{fo3}[][]{\fontsize{8}{8}\selectfont\textsf{$F_{o3}=1/12$ Kl/min}}
+    \psfrag{q1}[][]{\fontsize{8}{8}\selectfont\textsf{$F_1=1/2$ Kl/min}}
+    \psfrag{q2}[][]{\fontsize{8}{8}\selectfont\textsf{$F_2=3/5$ Kl/min}}
+    \psfrag{reservoir1}[][]{\fontsize{8}{8}\selectfont\textsf{Reservoir 1}}
+    \psfrag{reservoir2}[][]{\fontsize{8}{8}\selectfont\textsf{Reservoir 2}}
+    \psfrag{reservoir3}[][]{\fontsize{8}{8}\selectfont\textsf{Reservoir 3}}
+    \psfrag{pump1}[][]{\fontsize{8}{8}\selectfont\textsf{$P_1=5$ KW}}
+    \psfrag{pump2}[][]{\fontsize{8}{8}\selectfont\textsf{$P_2=6$ KW}}
+
+
+    \includegraphics[scale=0.7]{pump_scheme.eps}
+    \caption{Water management pumping scheme.}
+    \label{fig:ps}
+\end{figure}
+
+
+
+
+\subsection{Solution of the LP}
+
+The LP cost function is
+\begin{equation}
+J=P_{1}\sum_{i=1}^{6}C_{i}U_{1i}+P_{2}\sum_{i=1}^{6}C_{i}U_{2i}
+\end{equation}
+
+%with $12$ decision variables $U_{1i},\ \ U_{2i} , \ \ i=1,\ldots,6$.
+The constraints~(\ref{eq:axb})-(\ref{eq:cca}) are defined by
+
+
+\begin{eqnarray}
+A=
+\begin{bmatrix}
+0 & 0 & 0\\
+0 & 0 & 0\\
+0 & 0 & 0
+\end{bmatrix}, \ \
+B=
+\begin{bmatrix}
+-F_{1} & -F_{2}\\
+F_{1} & 0\\
+0 & F_{2}\\
+\end{bmatrix}, \ \
+W_{i}=
+\begin{bmatrix}
+F_{e}\Delta t_{i}\\
+F_{o2}\Delta t_{i}\\
+F_{o3}\Delta t_{i}
+\end{bmatrix}
+\end{eqnarray}
+
+%\begin{eqnarray}
+%W_{i}=
+%\begin{bmatrix}
+%F_{e}\Delta t_{i}\\
+%F_{o2}\Delta t_{i}\\
+%F_{o3}\Delta t_{i}
+%\end{bmatrix}
+%\end{eqnarray}
+
+
+\noindent and the decision variables are
+
+\begin{eqnarray}
+%X_{i}=
+%\begin{bmatrix}
+%X_{1i}\\
+%X_{2i}\\
+%X_{3i}\\
+%\end{bmatrix}, \ \
+U_{i}=
+\begin{bmatrix}
+U_{1i}\\
+U_{2i}\\
+\end{bmatrix},
+\ \ i=1,\ldots,6
+\end{eqnarray}
+
+%for $i=1,\ldots,6$.
+
+Two distinct optimization problems are considered
+
+\begin{enumerate}
+\item Case 1: a 24 hours scheduling with initial state given by $x(0)=[2\ \ 1\ \ 1]^{T}10^{-1}$ Ml.
+
+%\item Case 2: a 24 hours scheduling with initial state given by $x(0)=[4\ \ 0.2\ \ 0.2]^{T}10^{-1}$
+%Ml, which corresponds to reservoir 1 full and reservoirs 2 and 3
+%empty.
+
+%\item Case 3: a 48 hours scheduling with initial state given by $x(0)=[2\ \ 1\ \ 1]^{T}10^{-1}$ Ml.
+
+\item Case 2: a 48 hours scheduling with initial state given by $x(0)=[2\ \ 1\ \ 1]^{T}10^{-1}$ Ml.
+\end{enumerate}
+
+Both, Case 1 and Case 2 have the same initial conditions. Case 2 is
+included in order to show how optimization period can be enlarged
+and still yield a solvable problem.
+%The Case 3 has the same initial conditions as Case 1 and it is
+%included in order to show how optimization period can be enlarged
+%and still yield a solvable problem.
+Tables~\ref{tbl:LP1} and ~\ref{tbl:LP3} presents the minimization
+results for Case 1 and Case 2, respectively. Case 1 is a LP with 12
+decision variables, whereas Case 2 requires the solution of a LP
+with 24 decision variables. Both problems are solved in less than
+0.5 seconds in a desktop PC (2.66 GHz, 2.49 GB RAM) using the
+standard Matlab function ``linprog''.
+%Tables~\ref{tbl:LP1}, \ref{tbl:LP2} and ~\ref{tbl:LP3} presents the
+%minimization results for Case 1, Case 2, and Case 3, respectively.
+%Control actions are given in minutes for each pump operation. The
+%values have been rounded, hence we have a precision of half a
+%minute.
+\begin{table}[thpb]
+\begin{center}\caption{Case 1 Optimal Energy per Period given by LP solution.}
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+Interval $i$  & 1 & 2 & 3 & 4 & 5 & 6 & Energy (min)\\
+\hline
+$U_{1i}$ (min) & 227 & 14 & 0 & 103 &  0 & 40 & 384\\
+\hline
+$U_{2i}$ (min) & 191 & 11 & 0 & 85 & 0 & 33 & 320\\
+\hline
+\end{tabular}
+\label{tbl:LP1}
+\end{center}
+\end{table}
+%
+%\begin{table}[thpb]
+%\begin{center}\caption{Case 2 Optimal Energy per Period given by LP solution.}
+%\begin{tabular}{|c|c|c|c|c|c|c|c|}
+%\hline
+%Interval $i$  & 1 & 2 & 3 & 4 & 5 & 6 & Energy (min)\\
+%\hline
+%$U_{1i}$ (min) & 336 & 12 & 0 & 92 &  0 & 40 & 480\\
+%\hline
+%$U_{2i}$ (min) & 280 & 8 & 0 & 78 & 0 & 33 & 399\\
+%\hline
+%\end{tabular}
+%\label{tbl:LP2}
+%\end{center}
+%\end{table}
+
+\begin{table*}[thpb]
+\begin{center}\caption{Case 2 Optimal Energy per Period given by LP solution.}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+ Interval $i$  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & Energy (min)\\
+\hline
+$U_{1i}$  (min) & 224 & 13 & 0 & 112 & 0 & 91 & 265 & 11 & 0 & 113 & 0 & 40 & 869\\
+\hline
+$U_{2i} $ (min) & 188 & 11 &  0 & 93 & 0 & 82 & 213 & 9 & 0 & 95 & 0 & 33 & 724\\
+\hline
+\end{tabular}
+\label{tbl:LP3}
+\end{center}
+\end{table*}
+
+
+\subsection{Solution of the BIP}
+Tables~\ref{tbl:LP1} and ~\ref{tbl:LP3} provide the optimal energy
+deployment per period with constant electricity price. In order to
+obtain the discrete control action it is necessary to solve 4
+feasibility BIP's in Case 1 and 8 feasibility BIP's in Case 2,
+because in all solutions, during the time intervals with peak
+electricity price both pumps are kept off.
+%The feasible BIP is given by
+%equations~(\ref{eq:axbbip})-(\ref{eq:equalbip}) that are completely
+%defined by matrices $A_d$, $B_d$, and $D_d$, which are the
+%zero-order hold discretization of matrices $A$, $B$, and $B_w$,
+%respectively.
+The sampling time used for discretization is show in the second row
+of tables ~\ref{tbl:BIP1} and ~\ref{tbl:BIP3}, for the two cases
+considered, whereas the first row is the selected $L$ value and the
+last row shows the number of intervals $K$ used in each feasibility
+BIP. Consider for instance Case 1. The largest $K$ is equal to 7,
+which corresponds to the last time interval. The feasibility BIP has
+14 variables, because there are 2 pumps. All cases are solved in
+less than 1.5 seconds in a standard desktop PC using Matlab
+functions ``linprog'' and ``bintprog''. Note that the commonly used
+approach of direct discretization of cost function~(\ref{eq:min_ps})
+subject to~(\ref{eq:ss})-(\ref{eq:discrete}) with one hour sampling
+time yields an optimization BIP with 48 variables. The procedure was
+implemented by means of the Matlab ``bintprog'' and stopped without
+finding any solution because of ``maximum nodes reached without
+converging''. Finally Figure~\ref{fig:pumps1} shows the pumps
+control action together with the electricity price for Case 1. As
+can be seen during the peak intervals both pumps are kept off.
+Figure~\ref{fig:V1} shows the reservoir volume variations which are
+always in accordance with reservoir capacity constraints. The
+results for Case 2 can be seen in Figures~\ref{fig:pumps3}
+and~\ref{fig:V3}.
+
+
+%The reservoir volume variations are presented in Figure~\ref{fig:V1}
+%and ~\ref{fig:V3}. The reservoir volume is always in accordance with
+%reservoir capacity constraints.
+
+
+\begin{table}[thpb]
+\begin{center}\caption{Case 1 parameter $L$, sampling time $T_s$, and number of
+intervals $K$ for each feasibility BIP. Zeros indicate that no
+feasibility BIP is calculated because there is no energy to deploy
+in the interval.} \label{tbl:BIP1}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+BIP  & 1 & 2 & 3 & 4 & 5 & 6 \\
+\hline
+$L$ & 3 & 1 & 0 & 1 &  0 & 2\\
+\hline
+$T_s$ (min) & 60 & 12 & 0 & 80 & 0 & 17.14 \\
+\hline
+$K$  & 6 & 5 & 0 & 6 & 0 & 7 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+%
+%\begin{table}[thpb]
+%\begin{center}\caption{Case 2 parameter $L$, sampling time $T_s$, and number of
+%intervals $K$ for each feasibility BIP. Zeros indicate that no
+%feasibility BIP is calculated because there is no energy to deploy
+%in the interval.} \label{tbl:BIP2}
+%\begin{tabular}{|c|c|c|c|c|c|c|}
+%\hline
+%BIP  & 1 & 2 & 3 & 4 & 5 & 6 \\
+%\hline
+%$L$ & 3 & 1 & 0 & 1 &  0 & 2\\
+%\hline
+%$T_s$ (min) & 90 & 7.5 & 0 & 80 & 0 & 17.14 \\
+%\hline
+%$K$  & 4 & 8 & 0 & 6 & 0 & 7 \\
+%\hline
+%\end{tabular}
+%\end{center}
+%\end{table}
+%
+\begin{table*}[thpb]
+\begin{center}\caption{Case 2 parameter $L$, sampling time $T_s$, and number of
+intervals $K$ for each feasibility BIP. Zeros indicate that no
+feasibility BIP is calculated because there is no energy to deploy
+in the interval.} \label{tbl:BIP3}
+\begin{tabular}{|c|c|c|c|c|c|c|c|c|c|c|c|c|c|}
+\hline
+BIP  & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\
+\hline
+$L$  & 3 & 1 & 0 & 1 & 0 & 2 & 3 & 1 & 0 & 1 & 0 & 2 \\
+\hline
+$T_s$ (min) & 60 & 12 &  0 & 96 & 0 & 40 & 72 & 8.57 & 0 & 96 & 0 & 17.14 \\
+\hline
+$K$  & 6 & 5 &  0 & 5 & 0 & 3 & 5 & 7 & 0 & 5 & 0 & 7 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table*}
+
+
+%Finally Figure~\ref{fig:pumps1} and~\ref{fig:pumps3} show the pumps
+%control action together with the electricity price. As can be seen
+%during the peak intervals both pumps are kept off. The reservoir
+%volume variations are presented in Figure~\ref{fig:V1} and
+%~\ref{fig:V3}. The reservoir volume is always in accordance with
+%reservoir capacity constraints.
+
+
+\begin{figure}[thpb]
+    \centering
+%    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$V(0)$}}
+%    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U(t_1)$}}
+    %\psfrag{ep}[][]{\fontsize{8}{8}\selectfont\textsf{$EP$}}
+%    \psfrag{t}[][]{\fontsize{8}{8}\selectfont\textsf{$T$}}
+%    \psfrag{p}[][]{\fontsize{8}{8}\selectfont\textsf{$G(s)$}}
+%    \psfrag{k}[][]{\fontsize{8}{8}\selectfont\textsf{$K^{-1}$}}
+%    \psfrag{r}[][]{\fontsize{8}{8}\selectfont\textsf{$R$}}
+
+
+    \includegraphics[scale=0.28]{pumps.eps}
+    \caption{Case 1 pumps control actions.}
+    \label{fig:pumps1}
+\end{figure}
+
+\begin{figure}[thpb]
+    \centering
+%    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$V(0)$}}
+%    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U(t_1)$}}
+    %\psfrag{ep}[][]{\fontsize{8}{8}\selectfont\textsf{$EP$}}
+%    \psfrag{t}[][]{\fontsize{8}{8}\selectfont\textsf{$T$}}
+%    \psfrag{p}[][]{\fontsize{8}{8}\selectfont\textsf{$G(s)$}}
+%    \psfrag{k}[][]{\fontsize{8}{8}\selectfont\textsf{$K^{-1}$}}
+%    \psfrag{r}[][]{\fontsize{8}{8}\selectfont\textsf{$R$}}
+
+
+    \includegraphics[scale=0.28]{V.eps}
+    \caption{Case 1 volume variation and capacity constraints.}
+    \label{fig:V1}
+\end{figure}
+%
+%
+%\begin{figure}[thpb]
+%    \centering
+%%    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$V(0)$}}
+%%    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U(t_1)$}}
+%    %\psfrag{ep}[][]{\fontsize{8}{8}\selectfont\textsf{$EP$}}
+%%    \psfrag{t}[][]{\fontsize{8}{8}\selectfont\textsf{$T$}}
+%%    \psfrag{p}[][]{\fontsize{8}{8}\selectfont\textsf{$G(s)$}}
+%%    \psfrag{k}[][]{\fontsize{8}{8}\selectfont\textsf{$K^{-1}$}}
+%%    \psfrag{r}[][]{\fontsize{8}{8}\selectfont\textsf{$R$}}
+%
+%
+%    \includegraphics[scale=0.3]{pumps_ss.eps}
+%    \caption{Case 2 pumps control actions.}
+%    \label{fig:pumps2}
+%\end{figure}
+%
+%\begin{figure}[thpb]
+%    \centering
+%%    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$V(0)$}}
+%%    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U(t_1)$}}
+%    %\psfrag{ep}[][]{\fontsize{8}{8}\selectfont\textsf{$EP$}}
+%%    \psfrag{t}[][]{\fontsize{8}{8}\selectfont\textsf{$T$}}
+%%    \psfrag{p}[][]{\fontsize{8}{8}\selectfont\textsf{$G(s)$}}
+%%    \psfrag{k}[][]{\fontsize{8}{8}\selectfont\textsf{$K^{-1}$}}
+%%    \psfrag{r}[][]{\fontsize{8}{8}\selectfont\textsf{$R$}}
+%
+%
+%    \includegraphics[scale=0.3]{V_ss.eps}
+%    \caption{Case 2 volume variation and capacity constraints.}
+%    \label{fig:V2}
+%\end{figure}
+%
+%
+
+\begin{figure}[thpb]
+    \centering
+%    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$V(0)$}}
+%    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U(t_1)$}}
+    %\psfrag{ep}[][]{\fontsize{8}{8}\selectfont\textsf{$EP$}}
+%    \psfrag{t}[][]{\fontsize{8}{8}\selectfont\textsf{$T$}}
+%    \psfrag{p}[][]{\fontsize{8}{8}\selectfont\textsf{$G(s)$}}
+%    \psfrag{k}[][]{\fontsize{8}{8}\selectfont\textsf{$K^{-1}$}}
+%    \psfrag{r}[][]{\fontsize{8}{8}\selectfont\textsf{$R$}}
+
+
+    \includegraphics[scale=0.28]{Pump_total.eps}
+    \caption{Case 2 pumps control actions.}
+    \label{fig:pumps3}
+\end{figure}
+
+\begin{figure}[thpb]
+    \centering
+%    \psfrag{V0}[][]{\fontsize{8}{8}\selectfont\textsf{$V(0)$}}
+%    \psfrag{U1}[][]{\fontsize{8}{8}\selectfont\textsf{$U(t_1)$}}
+    %\psfrag{ep}[][]{\fontsize{8}{8}\selectfont\textsf{$EP$}}
+%    \psfrag{t}[][]{\fontsize{8}{8}\selectfont\textsf{$T$}}
+%    \psfrag{p}[][]{\fontsize{8}{8}\selectfont\textsf{$G(s)$}}
+%    \psfrag{k}[][]{\fontsize{8}{8}\selectfont\textsf{$K^{-1}$}}
+%    \psfrag{r}[][]{\fontsize{8}{8}\selectfont\textsf{$R$}}
+
+
+    \includegraphics[scale=0.28]{Vol_total.eps}
+    \caption{Case 2 volume variation and capacity constraints.}
+    \label{fig:V3}
+\end{figure}
+
+
+
+
+
+
+
+
+\section{CONCLUSION}
+In this article we have presented a new approach to the solution of
+optimization problems with discrete control variables which yield
+binary integer programs (BIP). The approach is to transform a single
+BIP optimization by a LP and $N$ feasibility BIP with less number of
+variables. In this way it is possible to solve optimization problems
+with longer time intervals and with higher number of actuators,
+because the BIP number of variables is reduced, improving the
+algorithmic behavior in providing a solution. Moreover the
+optimization problem is translated to a feasibility problem, in this
+way only a feasible solution is needed. Finally the complexity of
+the feasibility BIPs does not depend on the problem time horizon.
+
+\bibliographystyle{IEEEtran}
+\bibliography{oem_bip}
+
+
+
+
+
+
+%   \begin{figure}[thpb]
+%      \centering
+%      %\includegraphics[scale=1.0]{figurefile}
+%      \caption{Inductance of oscillation winding on amorphous
+%       magnetic core versus DC bias magnetic field}
+%      \label{figurelabel}
+%   \end{figure}
+%
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{ACKNOWLEDGMENTS}
+%
+%The authors gratefully acknowledge the contribution of National Research Organization and reviewers' comments.
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%References are important to the reader; therefore, each citation must be complete and correct. If at all possible, references should be commonly available publications.
+%
+%\begin{thebibliography}{99}
+%
+%\bibitem{c1}
+%J.G.F. Francis, The QR Transformation I, {\it Comput. J.}, vol. 4, 1961, pp 265-271.
+%
+%\bibitem{c2}
+%H. Kwakernaak and R. Sivan, {\it Modern Signals and Systems}, Prentice Hall, Englewood Cliffs, NJ; 1991.
+%
+%\bibitem{c3}
+%D. Boley and R. Maier, "A Parallel QR Algorithm for the Non-Symmetric Eigenvalue Algorithm", {\it in Third SIAM Conference on Applied Linear Algebra}, Madison, WI, 1988, pp. A20.
+%
+%\end{thebibliography}
+
+\end{document}
