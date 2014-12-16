@@ -52,13 +52,26 @@ P3   = 5;                                     % Power of Pump 3 [Kw]
 P4   = 5;                                     % Power of Pump 4 [Kw]
 Pmss =[P1 P2 P3 P4];                          % 1xM [Kw]
 
-for i=0:9
+for i=8:9
     
 x0=[xmin(1)+(xmax(1)-xmin(1))*i/9; 50 ; 50];           	      % Initial State. V1 V2 V3 [Kl]
 
 %First Stage Call (Linear Programming problem)
 [U, Energy, EnergyCost, X_m, U_m, Xf_m] = FirstStageLP( C, Delta_C, x0, A, B, W, Pmss, xmax, xmin)
-VisualizeData(xmin,xmax, Xf_m,U_m, Delta_C,C,Energy)
-pause
-close all
+% VisualizeData(xmin,xmax, Xf_m,U_m, Delta_C,C,Energy)
+% pause
+% close all
 end
+
+%Second Stage Call (BIP)
+
+for i=1:size(U_m,2)
+    Ui_int(i,1)=round(U_m(1,i));
+end
+Delta_Ci=Delta_C(1);
+L=1;
+Wi=W(:,1);
+[U_m_K, L, X_m_K] = SecondStageBIP( Ui_int, Delta_Ci, L, x0, A, B, Wi, xmax, xmin)
+
+
+

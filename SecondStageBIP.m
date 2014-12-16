@@ -24,7 +24,7 @@
 %   L:          Indirect sampling time. Integer.
 
 
-function [U_m_K, L, Xf_m_K] = SecondStageBIP( Ui, Delta_Ci, L, x0, A, B, Wi, xmax, xmin, ops)
+function [U_m_K, L, Xf_m_K] = SecondStageBIP( Ui, Delta_Ci, L, x0, A, B, Wi, xmax, xmin)
 
 
 % 0. - VARIABLE DEFINITION
@@ -111,7 +111,7 @@ Alp*u<=blp;
 
 cvx_end
 
-x=Bbarrad*u+Ikk+Wbar_K
+x=Bbarrad*u+Ikk+Wbar_K;
 
 Xf_m_K=[];
 for i= 1:(K+1)
@@ -119,10 +119,11 @@ for i= 1:(K+1)
 end
 
 U_m_K=[];
-for i= 1:length(K);
-    U_m_K=[U_m_K;transpose(u((i-1)*M+1:i*M))];
+for i= 1:4:M*K;
+    U_m_K=[U_m_K , u(i:i+3)];
+%     U_m_K=[U_m_K;transpose(u((i-1)*M+1:i*M))];
 end
-K
+
 
 
 
